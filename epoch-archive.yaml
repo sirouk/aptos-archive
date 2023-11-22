@@ -1,0 +1,21 @@
+env_vars:
+  - key: "FOLDER"
+    value: "./"
+
+commands:
+  create_backup: 'echo $BACKUP_NAME'
+  create_for_write: |
+    mkdir -p "$FOLDER/$BACKUP_HANDLE"
+    FILE_HANDLE="$BACKUP_HANDLE/$FILE_NAME"
+    echo "$FILE_HANDLE"
+    exec 1>&-
+    gzip -c > "$FOLDER/$FILE_HANDLE"
+  open_for_read: 'cat "$FILE_HANDLE" | gzip -cd'
+  save_metadata_line: |
+    mkdir -p "$FOLDER/metadata"
+    FILE_HANDLE="metadata/$FILE_NAME"
+    echo "$FILE_HANDLE"
+    exec 1>&-
+    gzip -c > "$FOLDER/$FILE_HANDLE"
+  list_metadata_files: '(test -d $FOLDER/metadata && cd $FOLDER/metadata && ls -1 || exec) | while read f; do echo metadata/$f; done'
+  backup_metadata_file: 'mkdir -p $FOLDER/metadata_backup && mv $FOLDER/metadata/$FILE_NAME $FOLDER/metadata_backup/$FILE_NAME'
